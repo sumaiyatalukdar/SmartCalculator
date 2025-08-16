@@ -147,10 +147,4 @@ The application features a modern design with:
 - Advanced amortization schedules
 - Mobile app version
 
-## 📞 Support
-
-If you have any questions or need support, please open an issue on GitHub or contact the maintainer.
-
----
-
-**Built with ❤️ using React.js**
+## Live project - https://smart-calculator-git-main-sumaiyatalukdars-projects.vercel.app
