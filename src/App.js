@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import InterestCalculator from './components/InterestCalculator';
 import EMICalculator from './components/EMICalculator';
+import { currencies, convertCurrency, formatCurrency } from './utils/currencyConverter';
+import { exportToPDF } from './utils/pdfExporter';
 
 function App() {
   const [activeTab, setActiveTab] = useState('interest');
   const [darkMode, setDarkMode] = useState(false);
   const [calculationHistory, setCalculationHistory] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState('INR');
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load preferences from localStorage only once on component mount
@@ -16,6 +19,7 @@ function App() {
       const savedDarkMode = localStorage.getItem('darkMode');
       const savedHistory = localStorage.getItem('calculationHistory');
       const savedFavorites = localStorage.getItem('favorites');
+      const savedCurrency = localStorage.getItem('selectedCurrency');
 
       if (savedDarkMode !== null) {
         setDarkMode(JSON.parse(savedDarkMode));
@@ -25,6 +29,9 @@ function App() {
       }
       if (savedFavorites) {
         setFavorites(JSON.parse(savedFavorites));
+      }
+      if (savedCurrency) {
+        setSelectedCurrency(savedCurrency);
       }
     } catch (error) {
       console.error('Error loading data from localStorage:', error);
@@ -40,11 +47,12 @@ function App() {
         localStorage.setItem('darkMode', JSON.stringify(darkMode));
         localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
         localStorage.setItem('favorites', JSON.stringify(favorites));
+        localStorage.setItem('selectedCurrency', selectedCurrency);
       } catch (error) {
         console.error('Error saving data to localStorage:', error);
       }
     }
-  }, [darkMode, calculationHistory, favorites, isLoaded]);
+  }, [darkMode, calculationHistory, favorites, selectedCurrency, isLoaded]);
 
   // Apply dark mode to body
   useEffect(() => {
@@ -91,6 +99,10 @@ function App() {
     setFavorites([]);
   };
 
+  const exportCalculation = (calculation) => {
+    exportToPDF(calculation, calculation.type);
+  };
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
       <header className="App-header">
@@ -100,6 +112,19 @@ function App() {
             <p>Calculate Interest and EMI with ease</p>
           </div>
           <div className="header-controls">
+            <div className="currency-selector">
+              <select
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+                className="currency-select"
+              >
+                {currencies.map(currency => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.symbol} {currency.code}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button 
               className={`dark-mode-toggle ${darkMode ? 'active' : ''}`}
               onClick={toggleDarkMode}
@@ -166,11 +191,13 @@ function App() {
             <InterestCalculator 
               onCalculate={addToHistory}
               onFavorite={addToFavorites}
+              selectedCurrency={selectedCurrency}
             />
           ) : activeTab === 'emi' ? (
             <EMICalculator 
               onCalculate={addToHistory}
               onFavorite={addToFavorites}
+              selectedCurrency={selectedCurrency}
             />
           ) : activeTab === 'history' ? (
             <CalculationHistory 
@@ -178,12 +205,16 @@ function App() {
               onClear={clearHistory}
               onDelete={(id) => setCalculationHistory(prev => prev.filter(item => item.id !== id))}
               onFavorite={addToFavorites}
+              onExport={exportCalculation}
+              selectedCurrency={selectedCurrency}
             />
           ) : activeTab === 'favorites' ? (
             <FavoritesList
               favorites={favorites}
               onClear={clearFavorites}
               onRemove={removeFromFavorites}
+              onExport={exportCalculation}
+              selectedCurrency={selectedCurrency}
             />
           ) : null}
         </div>
@@ -193,7 +224,7 @@ function App() {
 }
 
 // Calculation History Component
-const CalculationHistory = ({ history, onClear, onDelete, onFavorite }) => {
+const CalculationHistory = ({ history, onClear, onDelete, onFavorite, onExport, selectedCurrency }) => {
   if (history.length === 0) {
     return (
       <div className="history-empty">
@@ -229,6 +260,13 @@ const CalculationHistory = ({ history, onClear, onDelete, onFavorite }) => {
                   ⭐
                 </button>
                 <button 
+                  onClick={() => onExport(item)} 
+                  className="export-btn"
+                  title="Export to PDF"
+                >
+                  📄
+                </button>
+                <button 
                   onClick={() => onDelete(item.id)} 
                   className="delete-history-btn"
                   title="Delete this calculation"
@@ -243,15 +281,15 @@ const CalculationHistory = ({ history, onClear, onDelete, onFavorite }) => {
                 <>
                   <div className="history-detail">
                     <span>Principal:</span>
-                    <span>₹{item.principal.toLocaleString()}</span>
+                    <span>{formatCurrency(item.principal, selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Interest Earned:</span>
-                    <span>₹{parseFloat(item.interest || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.interest || 0), selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Total Amount:</span>
-                    <span>₹{parseFloat(item.amount || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.amount || 0), selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Type:</span>
@@ -262,19 +300,19 @@ const CalculationHistory = ({ history, onClear, onDelete, onFavorite }) => {
                 <>
                   <div className="history-detail">
                     <span>Loan Amount:</span>
-                    <span>₹{item.principal.toLocaleString()}</span>
+                    <span>{formatCurrency(item.principal, selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Monthly EMI:</span>
-                    <span>₹{parseFloat(item.emi || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.emi || 0), selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Total Interest:</span>
-                    <span>₹{parseFloat(item.totalInterest || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.totalInterest || 0), selectedCurrency)}</span>
                   </div>
                   <div className="history-detail">
                     <span>Total Amount:</span>
-                    <span>₹{parseFloat(item.totalAmount || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.totalAmount || 0), selectedCurrency)}</span>
                   </div>
                 </>
               )}
@@ -287,7 +325,7 @@ const CalculationHistory = ({ history, onClear, onDelete, onFavorite }) => {
 };
 
 // Favorites List Component
-const FavoritesList = ({ favorites, onClear, onRemove }) => {
+const FavoritesList = ({ favorites, onClear, onRemove, onExport, selectedCurrency }) => {
   if (favorites.length === 0) {
     return (
       <div className="favorites-empty">
@@ -316,6 +354,13 @@ const FavoritesList = ({ favorites, onClear, onRemove }) => {
               <span className="favorite-timestamp">{item.timestamp}</span>
               <div className="favorite-actions">
                 <button 
+                  onClick={() => onExport(item)} 
+                  className="export-btn"
+                  title="Export to PDF"
+                >
+                  📄
+                </button>
+                <button 
                   onClick={() => onRemove(item.id)} 
                   className="remove-favorite-btn"
                   title="Remove from Favorites"
@@ -330,30 +375,30 @@ const FavoritesList = ({ favorites, onClear, onRemove }) => {
                 <>
                   <div className="favorite-detail">
                     <span>Principal:</span>
-                    <span>₹{item.principal.toLocaleString()}</span>
+                    <span>{formatCurrency(item.principal, selectedCurrency)}</span>
                   </div>
                   <div className="favorite-detail">
                     <span>Interest Earned:</span>
-                    <span>₹{parseFloat(item.interest || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.interest || 0), selectedCurrency)}</span>
                   </div>
                   <div className="favorite-detail">
                     <span>Total Amount:</span>
-                    <span>₹{parseFloat(item.amount || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.amount || 0), selectedCurrency)}</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="favorite-detail">
                     <span>Loan Amount:</span>
-                    <span>₹{item.principal.toLocaleString()}</span>
+                    <span>{formatCurrency(item.principal, selectedCurrency)}</span>
                   </div>
                   <div className="favorite-detail">
                     <span>Monthly EMI:</span>
-                    <span>₹{parseFloat(item.emi || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.emi || 0), selectedCurrency)}</span>
                   </div>
                   <div className="favorite-detail">
                     <span>Total Interest:</span>
-                    <span>₹{parseFloat(item.totalInterest || 0).toLocaleString()}</span>
+                    <span>{formatCurrency(parseFloat(item.totalInterest || 0), selectedCurrency)}</span>
                   </div>
                 </>
               )}

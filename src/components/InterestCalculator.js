@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './InterestCalculator.css';
+import { formatCurrency } from '../utils/currencyConverter';
+import { exportToPDF } from '../utils/pdfExporter';
 
-const InterestCalculator = ({ onCalculate, onFavorite }) => {
+const InterestCalculator = ({ onCalculate, onFavorite, selectedCurrency }) => {
   const [formData, setFormData] = useState({
     principal: '',
     rate: '',
@@ -131,6 +133,12 @@ const InterestCalculator = ({ onCalculate, onFavorite }) => {
     }
   };
 
+  const handleExport = () => {
+    if (result) {
+      exportToPDF(result, 'interest');
+    }
+  };
+
   return (
     <div className="interest-calculator">
       <h2>Interest Calculator</h2>
@@ -150,7 +158,7 @@ const InterestCalculator = ({ onCalculate, onFavorite }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="principal">Principal Amount (₹):</label>
+          <label htmlFor="principal">Principal Amount ({selectedCurrency}):</label>
           <input
             type="number"
             id="principal"
@@ -232,20 +240,27 @@ const InterestCalculator = ({ onCalculate, onFavorite }) => {
               >
                 ⭐
               </button>
+              <button 
+                onClick={handleExport} 
+                className="export-result-btn"
+                title="Export to PDF"
+              >
+                📄
+              </button>
             </div>
           </div>
           <div className="result-grid">
             <div className="result-item">
               <span className="label">Principal Amount:</span>
-              <span className="value">₹{result.principal.toLocaleString()}</span>
+              <span className="value">{formatCurrency(result.principal, selectedCurrency)}</span>
             </div>
             <div className="result-item">
               <span className="label">Interest Earned:</span>
-              <span className="value">₹{parseFloat(result.interest).toLocaleString()}</span>
+              <span className="value">{formatCurrency(parseFloat(result.interest), selectedCurrency)}</span>
             </div>
             <div className="result-item">
               <span className="label">Total Amount:</span>
-              <span className="value">₹{parseFloat(result.amount).toLocaleString()}</span>
+              <span className="value">{formatCurrency(parseFloat(result.amount), selectedCurrency)}</span>
             </div>
             <div className="result-item">
               <span className="label">Calculation Type:</span>
