@@ -8,7 +8,6 @@
   margin-bottom: 30px;
   font-size: 2rem;
   font-weight: 600;
-  transition: color 0.3s ease;
 }
 
 .dark-mode .interest-calculator h2 {
@@ -16,21 +15,26 @@
 }
 
 .calculator-form {
-  display: grid;
-  gap: 20px;
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 15px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .calculator-form {
+  background: #4a5568;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
+  display: block;
+  margin-bottom: 8px;
   font-weight: 600;
   color: #495057;
-  font-size: 0.95rem;
   transition: color 0.3s ease;
 }
 
@@ -40,6 +44,7 @@
 
 .form-group input,
 .form-group select {
+  width: 100%;
   padding: 12px 16px;
   border: 2px solid #e9ecef;
   border-radius: 10px;
@@ -51,8 +56,8 @@
 
 .dark-mode .form-group input,
 .dark-mode .form-group select {
-  background: #4a5568;
-  border-color: #2d3748;
+  background: #2d3748;
+  border-color: #1a202c;
   color: #f0f0f0;
 }
 
@@ -65,35 +70,26 @@
 
 .dark-mode .form-group input:focus,
 .dark-mode .form-group select:focus {
+  border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-}
-
-.form-group input::placeholder {
-  color: #adb5bd;
-}
-
-.dark-mode .form-group input::placeholder {
-  color: #718096;
 }
 
 .button-group {
   display: flex;
   gap: 15px;
-  margin-top: 10px;
+  margin-top: 30px;
 }
 
 .calculate-btn,
 .reset-btn {
   flex: 1;
-  padding: 14px 24px;
+  padding: 15px 30px;
   border: none;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .calculate-btn {
@@ -107,38 +103,25 @@
 }
 
 .reset-btn {
-  background: #f8f9fa;
-  color: #6c757d;
-  border: 2px solid #e9ecef;
-}
-
-.dark-mode .reset-btn {
-  background: #4a5568;
-  color: #a0aec0;
-  border-color: #2d3748;
+  background: #6c757d;
+  color: white;
 }
 
 .reset-btn:hover {
-  background: #e9ecef;
-  color: #495057;
-}
-
-.dark-mode .reset-btn:hover {
-  background: #2d3748;
-  color: #e2e8f0;
+  background: #5a6268;
+  transform: translateY(-2px);
 }
 
 .result-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: white;
   border-radius: 15px;
   padding: 25px;
-  margin-top: 30px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e9ecef;
   transition: all 0.3s ease;
 }
 
 .dark-mode .result-section {
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  background: #2d3748;
   border-color: #1a202c;
 }
 
@@ -148,7 +131,7 @@
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .dark-mode .result-header {
@@ -156,11 +139,10 @@
 }
 
 .result-header h3 {
-  text-align: center;
   color: #333;
-  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  margin: 0;
   transition: color 0.3s ease;
 }
 
@@ -171,14 +153,12 @@
 .result-actions {
   display: flex;
   gap: 10px;
-  align-items: center;
 }
 
-.favorite-result-btn,
-.export-result-btn {
+.favorite-result-btn {
   background: none;
   border: none;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -188,23 +168,11 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-}
-
-.favorite-result-btn {
   color: #ffc107;
 }
 
 .favorite-result-btn:hover {
   background: rgba(255, 193, 7, 0.1);
-  transform: scale(1.1);
-}
-
-.export-result-btn {
-  color: #28a745;
-}
-
-.export-result-btn:hover {
-  background: rgba(40, 167, 69, 0.1);
   transform: scale(1.1);
 }
 
@@ -217,16 +185,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: white;
-  border-radius: 10px;
-  border: 1px solid #e9ecef;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
   transition: all 0.3s ease;
 }
 
 .dark-mode .result-item {
-  background: #2d3748;
-  border-color: #1a202c;
+  border-bottom-color: #4a5568;
+}
+
+.result-item:last-child {
+  border-bottom: none;
 }
 
 .result-item .label {
@@ -246,12 +215,8 @@
 }
 
 @media (max-width: 768px) {
-  .interest-calculator h2 {
-    font-size: 1.5rem;
-  }
-  
   .calculator-form {
-    gap: 15px;
+    padding: 20px;
   }
   
   .button-group {
@@ -266,10 +231,6 @@
     flex-direction: column;
     gap: 15px;
     text-align: center;
-  }
-  
-  .result-actions {
-    justify-content: center;
   }
   
   .result-item {

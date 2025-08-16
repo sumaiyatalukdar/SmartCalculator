@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import './EMICalculator.css';
-import { formatCurrency } from '../utils/currencyConverter';
-import { exportToPDF } from '../utils/pdfExporter';
-import AmortizationTable from './AmortizationTable';
 
-const EMICalculator = ({ onCalculate, onFavorite, selectedCurrency }) => {
+const EMICalculator = ({ onCalculate, onFavorite }) => {
   const [formData, setFormData] = useState({
     loanAmount: '',
     interestRate: '',
@@ -116,19 +113,13 @@ const EMICalculator = ({ onCalculate, onFavorite, selectedCurrency }) => {
     }
   };
 
-  const handleExport = () => {
-    if (result) {
-      exportToPDF(result, 'emi');
-    }
-  };
-
   return (
     <div className="emi-calculator">
       <h2>EMI Calculator</h2>
       
       <div className="calculator-form">
         <div className="form-group">
-          <label htmlFor="loanAmount">Loan Amount ({selectedCurrency}):</label>
+          <label htmlFor="loanAmount">Loan Amount (₹):</label>
           <input
             type="number"
             id="loanAmount"
@@ -206,31 +197,24 @@ const EMICalculator = ({ onCalculate, onFavorite, selectedCurrency }) => {
               >
                 ⭐
               </button>
-              <button 
-                onClick={handleExport} 
-                className="export-result-btn"
-                title="Export to PDF"
-              >
-                📄
-              </button>
             </div>
           </div>
           <div className="result-grid">
             <div className="result-item">
               <span className="label">Monthly EMI:</span>
-              <span className="value">{formatCurrency(parseFloat(result.emi), selectedCurrency)}</span>
+              <span className="value">₹{parseFloat(result.emi).toLocaleString()}</span>
             </div>
             <div className="result-item">
               <span className="label">Total Interest:</span>
-              <span className="value">{formatCurrency(parseFloat(result.totalInterest), selectedCurrency)}</span>
+              <span className="value">₹{parseFloat(result.totalInterest).toLocaleString()}</span>
             </div>
             <div className="result-item">
               <span className="label">Total Amount:</span>
-              <span className="value">{formatCurrency(parseFloat(result.totalAmount), selectedCurrency)}</span>
+              <span className="value">₹{parseFloat(result.totalAmount).toLocaleString()}</span>
             </div>
             <div className="result-item">
               <span className="label">Principal Amount:</span>
-              <span className="value">{formatCurrency(result.principal, selectedCurrency)}</span>
+              <span className="value">₹{result.principal.toLocaleString()}</span>
             </div>
             <div className="result-item">
               <span className="label">Number of Payments:</span>
@@ -267,15 +251,6 @@ const EMICalculator = ({ onCalculate, onFavorite, selectedCurrency }) => {
               </div>
             </div>
           </div>
-
-          {/* Amortization Table */}
-          <AmortizationTable 
-            principal={result.principal}
-            emi={parseFloat(result.emi)}
-            totalInterest={parseFloat(result.totalInterest)}
-            numberOfPayments={result.numberOfPayments}
-            interestRate={result.interestRate}
-          />
         </div>
       )}
     </div>
